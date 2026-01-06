@@ -1,2 +1,2 @@
-# aws-ai-siem-major-project
-Final-year Cyber Security major project: building and evaluating an AWS-based SIEM, then enhancing it with machine learning.
+# aws-siem-baseline-vs-a
+Final-year Cyber Security major project evaluating a traditional AWS-based SIEM and an AI-enhanced SIEM through controlled testing and comparison.
