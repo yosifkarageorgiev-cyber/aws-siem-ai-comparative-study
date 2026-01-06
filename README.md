@@ -1,4 +1,4 @@
-# AWS AI-Enhanced SIEM – Major Project
+# AWS SIEM Baseline vs AI – Comparative Study
 
 ## Overview
 This final-year Cyber Security major project investigates whether integrating machine learning techniques into a cloud-based Security Information and Event Management (SIEM) system improves intrusion detection performance compared to a traditional, rule-based SIEM.
