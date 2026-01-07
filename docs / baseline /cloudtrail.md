@@ -9,3 +9,9 @@ Purpose:
 
 Trail name: siem-baseline-cloudtrail  
 Region: eu-west-2 (London)
+
+Status:
+- CloudTrail trail successfully created
+- Multi-region logging enabled
+- Logs delivered to S3
+- No real-time analysis or ML enabled (baseline phase)
