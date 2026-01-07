@@ -15,3 +15,6 @@ Status:
 - Multi-region logging enabled
 - Logs delivered to S3
 - No real-time analysis or ML enabled (baseline phase)
+
+CloudWatch Logs integration enabled for real-time monitoring.
+Log group: /aws/cloudtrail/siem-baseline
