@@ -1,3 +1,9 @@
+# Original README (Pre‑LocalStack Version)
+
+This file preserves the original project description before the migration from AWS to LocalStack.  
+It is included to provide a transparent record of the project’s methodological evolution and  
+to support dissertation discussion regarding design changes and decision‑making.
+
 # AWS SIEM Baseline vs AI – Comparative Study
 
 ## Overview
