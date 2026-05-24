@@ -1,46 +1,55 @@
-# **LocalStack Setup Documentation**
+# **LocalStack Setup Documentation (Updated for Standalone OpenSearch)**
 
 ## **1. Introduction**
-LocalStack is a fully local AWS cloud emulator that replicates core AWS services such as S3, CloudWatch Logs, Lambda, and OpenSearch. It allows the SIEM system to be deployed, tested, and evaluated without incurring AWS charges. This setup provides a controlled, repeatable, and isolated environment suitable for cybersecurity experimentation and attack simulation.
+LocalStack is used in this project to emulate AWS cloud services locally, allowing the SIEM pipeline to run without incurring AWS charges. It provides a safe, isolated, and repeatable environment for cybersecurity experimentation, including log ingestion, Lambda processing, and S3 storage.
+
+**Important:**  
+OpenSearch and OpenSearch Dashboards are **not** provided by LocalStack in this setup.  
+They run as **separate standalone Docker containers**, which is why the dashboard is accessed on port **5601**, not through the LocalStack edge port.
 
 ---
 
 ## **2. Why LocalStack Was Used**
-The original project design used live AWS services. However, early testing showed that SIEM‑related services generated high and unpredictable costs. To maintain feasibility and methodological integrity, the implementation was migrated to LocalStack. This preserved the cloud‑based architecture while eliminating financial risk and ensuring safe, isolated experimentation.
+The original design used real AWS services, but early testing showed that SIEM‑related services generated high and unpredictable costs. Migrating to LocalStack allowed the project to:
 
-A full explanation of this decision is included in the **Methodology chapter** and supported by the archived original README in the GitHub history.
+- Maintain the cloud‑based architecture  
+- Avoid all AWS charges  
+- Run attack simulations safely  
+- Keep the environment reproducible for assessment  
+
+This change is documented in the proposal and supported by the archived original README.
 
 ---
 
 ## **3. System Requirements**
 - Windows 10/11  
-- Docker Desktop installed and running  
+- Docker Desktop  
 - PowerShell or Command Prompt  
 - At least 8GB RAM  
-- Internet connection (for pulling images)
+- LocalStack auth token  
 
 ---
 
 ## **4. Installing LocalStack**
 
-### **4.1 Pull the LocalStack Docker image**
+### **4.1 Pull the LocalStack image**
 ```powershell
 docker pull localstack/localstack
 ```
 
-### **4.2 Set the LocalStack authentication token (PowerShell)**
+### **4.2 Set the LocalStack authentication token**
 ```powershell
 $env:LOCALSTACK_AUTH_TOKEN="your-token-here"
 ```
 
-### **4.3 Verify the token is set**
+### **4.3 Verify the token**
 ```powershell
 $env:LOCALSTACK_AUTH_TOKEN
 ```
 
 ---
 
-## **5. Running LocalStack (PowerShell)**
+## **5. Running LocalStack**
 
 ### **5.1 Start LocalStack**
 ```powershell
@@ -51,20 +60,23 @@ docker run --rm -it `
   localstack/localstack
 ```
 
-### **5.2 Expected output**
-You should see LocalStack boot logs showing services starting, including:
+### **5.2 Expected behaviour**
+LocalStack will start AWS‑compatible services such as:
 
 - S3  
 - CloudWatch Logs  
 - Lambda  
-- OpenSearch  
+- IAM  
+- SNS/SQS (if enabled)  
 
-A screenshot of this output is included in the practical evidence folder.
+**Note:**  
+LocalStack does *not* run OpenSearch in this project.  
+OpenSearch is handled separately.
 
 ---
 
-## **6. Docker Compose Configuration**
-A `docker-compose.yml` file was created to simplify repeated testing.
+## **6. Docker Compose Setup**
+A `docker-compose.yml` file simplifies repeated testing.
 
 ```yaml
 version: "3.8"
@@ -76,7 +88,7 @@ services:
       - "4566:4566"
       - "4571:4571"
     environment:
-      - SERVICES=s3,lambda,logs,opensearch
+      - SERVICES=s3,lambda,logs
       - DEBUG=1
       - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
     volumes:
@@ -86,81 +98,80 @@ services:
 
 This file is stored in:
 
-`localstack/docker-compose.yml`
+```
+localstack/docker-compose.yml
+```
 
 ---
 
 ## **7. Verifying LocalStack Services**
 
-### **7.1 List running services**
+### **7.1 List S3 buckets**
 ```powershell
 awslocal s3 ls
+```
+
+### **7.2 Check CloudWatch log groups**
+```powershell
 awslocal logs describe-log-groups
-awslocal opensearch list-domain-names
 ```
 
-### **7.2 Expected results**
-- S3 bucket list (empty at first)  
-- CloudWatch log groups (empty at first)  
-- OpenSearch domain visible  
+### **7.3 Verify Lambda functions**
+```powershell
+awslocal lambda list-functions
+```
 
-Screenshots of these commands are included in the evidence folder.
+Screenshots of these commands are stored in:
+
+```
+docs/practical_evidence/localstack/
+```
 
 ---
 
-## **8. OpenSearch Dashboard Access**
-LocalStack exposes OpenSearch at:
+## **8. Integration With Standalone OpenSearch**
+Because OpenSearch is **not** running inside LocalStack, the SIEM pipeline connects to:
 
-```
-http://localhost:4566/opensearch
-```
+- **LocalStack** for AWS services  
+- **Standalone OpenSearch** for indexing and dashboards  
 
-The dashboard was used to:
+### **Correct endpoints:**
 
-- Create index patterns  
-- View ingested logs  
-- Run queries  
-- Validate SIEM behaviour  
+| Component | URL |
+|----------|-----|
+| LocalStack AWS services | `http://localhost:4566` |
+| OpenSearch API | `http://localhost:9200` |
+| OpenSearch Dashboards | `http://localhost:5601` |
 
-Screenshots of the dashboard are included in:
-
-`docs/practical_evidence/opensearch/`
+This architecture is stable, modular, and avoids LocalStack’s OpenSearch limitations.
 
 ---
 
-## **9. Integration with the SIEM Pipeline**
-LocalStack services were integrated into the SIEM pipeline as follows:
-
-- **S3** — log storage  
-- **CloudWatch Logs** — log ingestion  
-- **Lambda** — log parsing and forwarding  
-- **OpenSearch** — indexing and visualisation  
-
-This mirrors the original AWS architecture while remaining cost‑free and fully local.
-
----
-
-## **10. Evidence Collected**
-The following evidence has been captured and stored in the repository:
+## **9. Evidence Collected**
+The following screenshots are included:
 
 - LocalStack running in PowerShell  
-- Docker Desktop container view  
-- OpenSearch dashboard  
-- Log ingestion tests  
-- Lambda execution logs  
+- Docker Desktop showing LocalStack container  
 - S3 bucket creation  
 - CloudWatch log groups  
+- Lambda execution logs  
+- SIEM pipeline sending logs to standalone OpenSearch  
 
-These screenshots are stored in:
+Stored in:
 
-`docs/practical_evidence/localstack/`
+```
+docs/practical_evidence/localstack/
+```
 
 ---
 
-## **11. Conclusion**
-LocalStack provides a reliable, cost‑free, and safe environment for implementing and testing the SIEM system. It preserves the cloud‑based architecture originally designed for AWS while enabling controlled attack simulations and repeatable experiments essential for the comparative study.
+## **10. Conclusion**
+LocalStack provides a reliable, cost‑free environment for emulating AWS services required by the SIEM system. Combined with standalone OpenSearch, this architecture preserves the original cloud‑based design while enabling safe attack simulations and reproducible testing.
+
+This setup forms the foundation for the SIEM baseline and the later AI‑enhanced anomaly detection phase.
 
 
-- **Development diary**  
 
-Tell me which one you want next.
+- **Update attack simulation documentation**  
+- **Generate full Designs section**  
+- **Create development diary**
