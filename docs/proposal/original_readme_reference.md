@@ -4,6 +4,9 @@ This file preserves the original project description before the migration from A
 It is included to provide a transparent record of the project’s methodological evolution and  
 to support dissertation discussion regarding design changes and decision‑making.
 
+The original README can be viewed in the GitHub commit history at:
+https://github.com/yosifkarageorgiev-cyber/aws-siem-ai-comparative-study/commit/c31b99ef1511984f23866d5ef8679c8f44d30579
+
 # AWS SIEM Baseline vs AI – Comparative Study
 
 ## Overview
