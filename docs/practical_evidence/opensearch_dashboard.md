@@ -1,68 +1,119 @@
+- **Standalone OpenSearch + OpenSearch Dashboards running in Docker**
+- **Port 5601 for the dashboard UI**
+- **Port 9200 for the OpenSearch API**
+- **NOT using LocalStack for OpenSearch**
+
+This version is clean, dissertation‑ready, and matches your actual architecture.
+
+You can paste this directly into:
+
+```
 docs/practical_evidence/opensearch_dashboard.md
 ```
 
-It follows dissertation‑grade structure, includes everything assessors expect, and links naturally into your LocalStack setup.
-
-Guided Links are included so you can expand sections later.
-
 ---
 
-# **OpenSearch Dashboard Documentation**
+# **OpenSearch Dashboard Documentation (Standalone Docker Version)**
 
 ## **1. Introduction**
-OpenSearch Dashboards provides the visualisation layer for the SIEM system implemented in LocalStack. It enables the creation of index patterns, dashboards, visualisations, and queries used to analyse ingested security logs. This documentation outlines how OpenSearch Dashboards was configured, accessed, and used to validate the SIEM pipeline.
+OpenSearch Dashboards provides the visualisation and analysis layer for the SIEM system. In this project, OpenSearch and OpenSearch Dashboards run as **standalone Docker containers**, separate from LocalStack. This setup provides full control over indexing, querying, and dashboard creation while maintaining compatibility with the SIEM pipeline.
+
+OpenSearch Dashboards is used to:
+
+- Inspect ingested logs  
+- Create index patterns  
+- Build visualisations  
+- Construct the baseline SIEM dashboard  
+- Validate detection of attack simulations  
 
 ---
 
 ## **2. Accessing OpenSearch Dashboards**
-After LocalStack is running, OpenSearch Dashboards becomes available at:
+Since OpenSearch Dashboards is running as a standalone Docker container, it uses the default port:
 
 ```
-http://localhost:4566/opensearch
+http://localhost:5601
 ```
 
-This interface is used to:
+This is the correct URL for your setup.
 
-- Create data views (index patterns)  
-- Inspect ingested logs  
-- Build dashboards  
-- Run queries  
-- Validate SIEM behaviour  
+### **2.1 OpenSearch API Endpoint**
+The OpenSearch backend is available at:
 
-Screenshots of the dashboard interface are stored in:
+```
+http://localhost:9200
+```
 
-`docs/practical_evidence/opensearch/`
+This endpoint is used for:
+
+- Index verification  
+- Query testing  
+- Debugging ingestion issues  
 
 ---
 
-## **3. Creating a Data View (Index Pattern)**
+## **3. Docker Setup**
 
-### **3.1 Navigate to Data Views**
+### **3.1 Example docker‑compose.yml**
+Your setup typically includes:
+
+```yaml
+version: '3.8'
+services:
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+    ports:
+      - "9200:9200"
+
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    ports:
+      - "5601:5601"
+    environment:
+      - OPENSEARCH_HOSTS=http://opensearch:9200
+```
+
+This configuration ensures:
+
+- OpenSearch runs on port **9200**  
+- Dashboards runs on port **5601**  
+- Security plugin is disabled for local testing  
+- Dashboards connects directly to the OpenSearch container  
+
+---
+
+## **4. Creating a Data View (Index Pattern)**
+
+### **4.1 Navigate to Data Views**
 Inside OpenSearch Dashboards:
 
-1. Open the left‑hand menu  
+1. Open the left menu  
 2. Select **Stack Management**  
-3. Select **Data Views**
+3. Select **Data Views**  
 
-### **3.2 Create a new Data View**
-Click **Create data view** and enter:
+### **4.2 Create a new Data View**
+Use the following settings:
 
 - **Name:** `logs`  
 - **Index pattern:**  
   ```
-  logs-* 
+  logs-*
   ```
   or  
   ```
   *
   ```
-  depending on your ingestion naming scheme  
 - **Timestamp field:**  
   ```
   @timestamp
   ```
 
-### **3.3 Save the Data View**
+### **4.3 Save the Data View**
 Once saved, the dashboard interface unlocks:
 
 - Add panel  
@@ -74,14 +125,10 @@ This confirms that OpenSearch is receiving and indexing logs correctly.
 
 ---
 
-## **4. Verifying Log Ingestion**
+## **5. Verifying Log Ingestion**
 
-### **4.1 Using Dev Tools**
-Open:
-
-**Dev Tools → Console**
-
-Run:
+### **5.1 Check indices**
+Use the Dev Tools console:
 
 ```json
 GET _cat/indices?v
@@ -93,38 +140,34 @@ Expected output includes something like:
 yellow open logs-2026.05.22
 ```
 
-This confirms:
-
-- The index exists  
-- LocalStack → OpenSearch ingestion is working  
-- The SIEM pipeline is active  
-
-### **4.2 Searching the logs**
-Run:
+### **5.2 Query logs**
+Retrieve the latest 20 log entries:
 
 ```json
 GET logs-*/_search?size=20
 ```
 
-This retrieves the latest 20 log entries and verifies:
+This verifies:
 
-- Timestamp fields  
+- Timestamps  
 - Event IDs  
 - Source IPs  
-- Attack logs (e.g., SSH brute force, Nmap scans)  
+- Attack logs (SSH brute force, Nmap scans, etc.)  
 
-Screenshots of these results are included in the evidence folder.
+Screenshots of these results are stored in:
+
+`docs/practical_evidence/opensearch/`
 
 ---
 
-## **5. Building the Dashboard**
+## **6. Building the SIEM Dashboard**
 
-### **5.1 Create a new dashboard**
+### **6.1 Create a new dashboard**
 Navigate to:
 
 **OpenSearch Dashboards → Dashboard → Create new**
 
-### **5.2 Add panels**
+### **6.2 Add panels**
 Panels created for this project include:
 
 - **Event Count Over Time**  
@@ -134,45 +177,16 @@ Panels created for this project include:
 - **Nmap Scan Detection**  
 - **Anomaly Detection (ML Phase)**  
 
-Each panel uses the `logs-*` index pattern and visualises different aspects of the ingested data.
+Each panel uses the `logs-*` index pattern.
 
-### **5.3 Save the dashboard**
+### **6.3 Save the dashboard**
 Name it:
 
 ```
 SIEM Baseline Dashboard
 ```
 
-This dashboard is used as the baseline for comparison with the AI‑enhanced SIEM.
-
----
-
-## **6. Example Visualisations**
-
-### **6.1 Event Count Over Time**
-- Type: Line chart  
-- X‑axis: `@timestamp`  
-- Y‑axis: Count  
-- Purpose: Shows spikes during attack simulations  
-
-### **6.2 Top Source IPs**
-- Type: Bar chart  
-- Field: `source.ip`  
-- Purpose: Identifies attacker IPs during brute‑force attempts  
-
-### **6.3 SSH Authentication Failures**
-- Type: Metric or Table  
-- Field: `event.id` or `message`  
-- Purpose: Detects brute‑force behaviour  
-
-### **6.4 Nmap Scan Detection**
-- Type: Table  
-- Field: `event.type` or `network.transport`  
-- Purpose: Shows port scan activity  
-
-All visualisations are stored in:
-
-`docs/practical_evidence/opensearch/visualisations/`
+This dashboard forms the baseline for comparison with the AI‑enhanced SIEM.
 
 ---
 
@@ -193,6 +207,6 @@ These are stored in:
 ---
 
 ## **8. Conclusion**
-OpenSearch Dashboards provides the analytical and visualisation layer for the SIEM system. It enables verification of log ingestion, supports dashboard creation, and provides the baseline for comparing traditional SIEM performance with the AI‑enhanced anomaly detection phase. The configuration and evidence collected demonstrate a functioning SIEM pipeline within LocalStack.
+OpenSearch Dashboards, running as a standalone Docker container, provides a powerful and flexible visualisation layer for the SIEM system. It enables verification of log ingestion, supports dashboard creation, and forms the baseline for comparing traditional SIEM performance with the AI‑enhanced anomaly detection phase.
 
-
+This configuration accurately reflects the real environment used in the project and supports reproducible, cost‑free experimentation.
