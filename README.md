@@ -1,47 +1,55 @@
-# AWS SIEM Baseline vs AI – Comparative Study
+# AWS SIEM Baseline vs AI - Comparative Study
 
 ## Overview
+
 This final-year Cyber Security major project investigates whether integrating machine learning techniques into a cloud-based Security Information and Event Management (SIEM) system improves intrusion detection performance compared to a traditional, rule-based SIEM.
 
-The project is intentionally implemented in two distinct and sequential phases. First, a traditional AWS-based SIEM is designed, deployed, and tested to establish a performance baseline. The system is then enhanced with machine learning-based anomaly detection, tested again under the same conditions, and the results are compared to evaluate the impact of artificial intelligence on detection accuracy, false positives, and operational cost.
+## Implementation
 
-## Project Aim
-To design, test, and evaluate a professional yet low-cost AWS-based SIEM, and to assess whether machine learning techniques can measurably improve intrusion detection compared to traditional rule-based approaches.
+The project is implemented in two distinct and sequential phases:
 
-## Objectives
-- Design and implement a low-cost, professional AWS-based SIEM using traditional rule-based detection.
-- Test and evaluate the baseline SIEM using controlled attack simulations and quantitative security metrics.
-- Identify limitations of traditional SIEM detection, particularly false positives and alert noise.
-- Enhance the SIEM with machine learning-based anomaly detection techniques.
-- Re-test the enhanced SIEM under the same conditions as the baseline system.
-- Compare detection performance, false positives, and cost between the traditional and AI-enhanced SIEM implementations.
+1. A traditional SIEM is designed, deployed, and tested to establish a performance baseline
+2. The system is then enhanced with machine learning-based anomaly detection, tested again under the same conditions, and the results are compared
 
-## Methodology
-The project follows a design-science and experimental methodology:
+## Lab Environment
 
-1. Build a traditional AWS-based SIEM using native logging services and rule-based detection.
-2. Simulate controlled attack scenarios in an isolated AWS lab environment.
-3. Test the baseline SIEM and record detection performance, false positives, and cost.
-4. Integrate machine learning models for anomaly detection into the SIEM pipeline.
-5. Re-test the enhanced SIEM using the same attack scenarios and evaluation metrics.
-6. Analyse and compare results to determine the effectiveness of machine learning enhancements.
-
-This structured approach ensures a fair and controlled comparison between traditional and AI-enhanced SIEM approaches.
-
-## Evaluation Strategy
-Both the traditional and AI-enhanced SIEM implementations are evaluated using identical datasets, attack simulations, and metrics. Performance is assessed using precision, recall, false positive rate, alert volume, and cost efficiency to ensure experimental validity and repeatability.
+- **Host:** Windows 11 laptop running Docker Desktop
+- **SIEM Backend:** OpenSearch 2.11.0 (Docker)
+- **Dashboard:** OpenSearch Dashboards (Docker)
+- **Cloud Simulation:** LocalStack (Docker) - simulates AWS S3, IAM
+- **Log Shipper:** Fluent Bit 3.2.2
+- **Attacker VM:** Kali Linux (VirtualBox)
+- **Target VM:** Windows Server 2019 (VirtualBox) - 192.168.56.101
 
 ## Repository Structure
-- `docs/` – Project documentation, methodology, ethics, and architecture diagrams.
-- `project-management/` – Risk register, decision log, and planning artefacts.
-- `aws/` – AWS configuration notes, service setup, and deployment scripts.
-- `simulation/` – Attack simulation and log generation scripts.
-- `ml/` – Machine learning notebooks, training, and evaluation code.
-- `evaluation/` – Results, metrics, and comparison outputs.
 
-## Ethics and Scope
-All data used in this project is synthetic or publicly available. No personal or sensitive data is processed. All attack simulations are performed in an isolated AWS environment for educational and research purposes only. The project complies with ethical and legal requirements relevant to cyber security research.
+- `configs/` - Fluent Bit and service configuration files
+- `docs/setup/` - Lab architecture and setup documentation
+- `docs/phase1_traditional_siem/` - Phase 1 results and attack evidence
+- `docs/phase2_ml_siem/` - Phase 2 ML model and results
+- `ml/` - Machine learning models and training code
+
+## Methodology
+
+1. Build traditional SIEM with rule-based detection
+2. Run controlled attacks from Kali Linux against Windows Server 2019
+3. Record detection metrics (precision, recall, false positives)
+4. Add ML anomaly detection layer
+5. Repeat same attacks
+6. Compare and analyse results
+
+## Evaluation Metrics
+
+- Detection rate
+- False positive rate
+- False negative rate
+- Time to detection
+- Alert volume
+
+## Ethics
+
+All attack simulations are performed in an isolated local lab environment for educational and research purposes only. No real systems or networks are targeted.
 
 ## Project Status
-Project initialised.  
-Current phase: **Baseline traditional SIEM design and setup**.
+
+Current phase: **Phase 1 - Traditional SIEM baseline in progress**
