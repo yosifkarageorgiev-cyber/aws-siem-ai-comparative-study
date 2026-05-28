@@ -1,0 +1,15 @@
+#!/bin/bash
+echo "========================================="
+echo "SIEM Reset - Clearing All Phase Data"
+echo "========================================="
+OPENSEARCH="http://localhost:9200"
+echo "[1] Deleting winlogbeat index..."
+curl -s -X DELETE "$OPENSEARCH/winlogbeat"
+echo ""
+echo "[2] Recreating fresh winlogbeat index..."
+curl -s -X PUT "$OPENSEARCH/winlogbeat" -H "Content-Type: application/json" -d '{"settings":{"number_of_shards":1,"number_of_replicas":0}}'
+echo ""
+echo "[3] Verifying index is empty..."
+curl -s "$OPENSEARCH/winlogbeat/_count"
+echo ""
+echo "Reset complete - Ready for fresh phase"
